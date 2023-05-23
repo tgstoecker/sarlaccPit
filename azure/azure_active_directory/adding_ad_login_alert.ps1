@@ -12,9 +12,13 @@ Connect-IPPSSession -UserPrincipalName tyll@wx8w4.onmicrosoft.com
 ##
 Connect-ExchangeOnline
 
-#create new
+#create new protection alert
 New-ProtectionAlert -Name hammerfall -AggregationType None -Category Supervision -Threattype Activity `
 -NotifyUser tyll.stoecker@outlook.de -Operation {userloggedin} -Filter "Activity.UserId -eq 'HammerMC@wx8w4.onmicrosoft.com'" -Severity High
 
 #change existing
 Set-ProtectionAlert -Identity "hammerfall"  -NotifyUser tyll@wx8w4.onmicrosoft.com
+
+#alternative? create new activity alert
+New-ActivityAlert -Name hammersmall -Type Custom -Category Supervision `
+-NotifyUser tyll.stoecker@outlook.de -Operation {userloggedin} -UserId HammerMC@wx8w4.onmicrosoft.com -Severity Medium
