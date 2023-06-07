@@ -39,37 +39,56 @@ Export-M365DSCConfiguration `
 -components 'AADConditionalAccessPolicy' `
 -Credential $Credential
 
+
+
+Connect-SPOService
+Import-Module PnP.PowerShell
+Connect-PnPOnline -Url "https://wx8w4-admin.sharepoint.com/" -Interactive 
+
+Connect-MgGraph -Scopes "Application.Read.All Domain.Read.All"
+
+
 ###
 #wenn komplett dann fehler weil 2 Faktor Authentifizierung
 #auskommentieren läuft surch und erzeugt mof datei ...
 
 Configuration CredentialsExample
 {
-    #param
-    #(
-    #    [Parameter(Mandatory = $true)]
-    #    [PSCredential]
-    #    $Credential
-    #)
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullorEmpty()]
+        [PSCredential] $Credential
+    )
     Import-DscResource -ModuleName Microsoft365DSC
 
     node localhost
     {
         SPOSite 'SiteWithCredentials'
         {
-            Url        = "https://wx8w4.sharepoint.com/sites/Retail"
+            Url        = "https://wx8w4.sharepoint.com/sites/credentialssite"
             Owner      = "tyll@wx8w4.onmicrosoft.com"
-            Title      = "Retail"
+            Title      = "TestSite"
             Template   = "STS#3"
             TimeZoneId = 13
             Ensure     = "Present"
-            #Credential = $Credential
+            Credential = $Credential
         }
     }
 }
 
+$cd = @{
+    AllNodes = @(
+        @{
+            NodeName = 'localhost'
+            PSDscAllowPlainTextPassword = $true
+        }
+    )
+}
 
+CredentialsExample -ConfigurationData $cd
 
+Start-DSCConfiguration -Path C:\Users\StoeckerTy\Documents\github_dev\sarlaccPit\CredentialsExample -Wait -Verbose -Force
 
 
 ####
